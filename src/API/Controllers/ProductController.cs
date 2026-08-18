@@ -19,7 +19,7 @@ public class ProductController : ControllerBase
         _productService = productService;
     }
 
-    // GET: api/Product
+    
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll(
@@ -70,28 +70,6 @@ public class ProductController : ControllerBase
             new { id = product.Id },
             product);
     }
-    //// POST: api/Product
-    //[HttpPost]
-    //public async Task<IActionResult> Create(
-    //    [FromBody] CreateProductDto request)
-    //{
-    //    if (string.IsNullOrWhiteSpace(request.ProductName))
-    //    {
-    //        return BadRequest(new
-    //        {
-    //            message = "Product name is required."
-    //        });
-    //    }
-
-    //    var product = await _productService.CreateAsync(request);
-
-    //    return CreatedAtAction(
-    //        nameof(GetById),
-    //        new { id = product.Id },
-    //        product);
-    //}
-
-    // PUT: api/Product/1
     [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(
