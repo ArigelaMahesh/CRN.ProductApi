@@ -16,34 +16,14 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// =====================================================
-// Database
-// =====================================================
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// =====================================================
-// Controllers
-// =====================================================
-
 builder.Services.AddControllers();
-// =====================================================
-// Response Compression
-// =====================================================
-
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
 });
-
-
-// =====================================================
-// CORS
-// =====================================================
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -54,9 +34,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-// =====================================================
-// API Versioning
-// =====================================================
+
 
 builder.Services.AddApiVersioning(options =>
 {
@@ -64,11 +42,6 @@ builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.ReportApiVersions = true;
 });
-
-// =====================================================
-// JWT Authentication
-// =====================================================
-
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -94,8 +67,6 @@ builder.Services
 
             ClockSkew = TimeSpan.Zero
         };
-
-        // Temporary debugging
         options.Events = new JwtBearerEvents
         {
             OnAuthenticationFailed = context =>
@@ -107,38 +78,16 @@ builder.Services
             }
         };
     });
-
-// =====================================================
-// Repositories
-// =====================================================
-
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
-
-// =====================================================
-// Services
-// =====================================================
-
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-// =====================================================
-// FluentValidation
-// =====================================================
-
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateProductValidator>();
-
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
-
-// =====================================================
-// Swagger
-// =====================================================
-
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -155,7 +104,6 @@ builder.Services.AddSwaggerGen(options =>
 
         Description = "Enter: Bearer {your JWT token}"
     });
-
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -171,43 +119,20 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
-// =====================================================
-// Build
-// =====================================================
-
 var app = builder.Build();
-
-// =====================================================
-// Exception Handling
-// =====================================================
-
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
-
-// =====================================================
-// Swagger
-// =====================================================
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// =====================================================
-// HTTP Pipeline
-// =====================================================
 app.UseResponseCompression();
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
 public partial class Program
 {
